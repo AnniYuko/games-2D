@@ -32,8 +32,8 @@ int main(void)
     //starting position ball: middle of the screen
     ball->x = SCREENWIDTH/2.0f;
     ball->y = SCREENHEIGHT/2.0f;
-    ball->speedX = 200;
-    ball->speedY = 300;
+    ball->speedX = 300;
+    ball->speedY = 400;
     ball->rad = 8;
     
     //Vector2 ballPosition = {ball->x, ball->y};
@@ -42,7 +42,7 @@ int main(void)
     playerL = malloc(sizeof(t_player));
     if (playerL == NULL)
         return(-1);
-    //player width, height and speed better constants or part of struct?
+    //player width, height and speed better as constants or part of struct?
     playerL->width = 10;
     playerL->height = 150;
     playerL->x = 50;
@@ -58,10 +58,6 @@ int main(void)
     playerR->x = SCREENWIDTH - 50 - playerR->width;
     playerR->y = SCREENHEIGHT/2 - playerR->height/2;
     playerR->speed = 500;
-    
-    /*Rectangle recR = {playerR->x, playerR->y, playerR->width, playerR->height};
-    Rectangle recL = {playerL->x, playerL->y, playerL->width, playerL->height};*/
-    
     
     InitWindow(SCREENWIDTH, SCREENHEIGHT, "Ping Pong!");
     SetWindowState(FLAG_VSYNC_HINT);
@@ -96,10 +92,10 @@ int main(void)
         //add: players can't move outside of screen
         
         //ball-player collision
-        /*if (CheckCollisionCircleRec(ballPosition, ball->rad, recR))
+        if (CheckCollisionCircleRec((Vector2) { ball->x, ball->y }, ball->rad, (Rectangle) { playerR->x, playerR->y, playerR->width, playerR->height }))
             ball->speedX *= -1;
-        else if (CheckCollisionCircleRec(ballPosition, ball->rad, recL))
-            ball->speedX *= -1;*/
+        else if (CheckCollisionCircleRec((Vector2) { ball->x, ball->y }, ball->rad, (Rectangle) { playerL->x, playerL->y, playerL->width, playerL->height }))
+            ball->speedX *= -1;
         
         /* if (ball->x >= SCREENWIDTH)
         {
@@ -109,7 +105,6 @@ int main(void)
         {
             point for playerR;
         } */
-    
         
         BeginDrawing();
             ClearBackground(BLACK);
@@ -118,7 +113,6 @@ int main(void)
             DrawRectangle(playerL->x, playerL->y, playerL->width, playerL->height, WHITE);
             DrawRectangle(playerR->x, playerR->y, playerR->width, playerR->height, WHITE);
             
-
             DrawFPS(1100, 10);
         EndDrawing();
     }
