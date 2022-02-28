@@ -32,7 +32,7 @@ int main(void)
     //starting position ball: middle of the screen
     ball->x = SCREENWIDTH/2.0f;
     ball->y = SCREENHEIGHT/2.0f;
-    ball->speedX = 300;
+    ball->speedX = 400;
     ball->speedY = 400;
     ball->rad = 8;
     
@@ -69,7 +69,7 @@ int main(void)
         ball->y += ball->speedY * GetFrameTime();
         
         //bounce off top and bottom of screen
-        if (ball->y > SCREENHEIGHT - 5)
+        if (ball->y > (SCREENHEIGHT - 5))
         {
             ball->y = SCREENHEIGHT - 5;
             ball->speedY *= -1;
@@ -78,6 +78,17 @@ int main(void)
         {
             ball->y = 5;
             ball->speedY *= -1;
+        }
+        //for testing purposes
+        if (ball->x < 5)
+        {
+            ball->x = 5;
+            ball->speedX *= -1;
+        }
+        else if (ball->x > (SCREENWIDTH - 5))
+        {
+            ball->x = SCREENWIDTH - 5;
+            ball->speedX *= -1;
         }
         
         //move players up(-) and down(+)
@@ -93,9 +104,15 @@ int main(void)
         
         //ball-player collision
         if (CheckCollisionCircleRec((Vector2) { ball->x, ball->y }, ball->rad, (Rectangle) { playerR->x, playerR->y, playerR->width, playerR->height }))
-            ball->speedX *= -1;
+        {    
+            if (ball->speedX > 0)
+                ball->speedX *= -1.05;
+        }
         else if (CheckCollisionCircleRec((Vector2) { ball->x, ball->y }, ball->rad, (Rectangle) { playerL->x, playerL->y, playerL->width, playerL->height }))
-            ball->speedX *= -1;
+        {
+            if (ball->speedX < 0)
+            ball->speedX *= -1.05;
+        }
         
         /* if (ball->x >= SCREENWIDTH)
         {
