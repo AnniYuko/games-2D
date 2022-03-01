@@ -22,13 +22,24 @@ Vector2 my_sub_vectors2(Vector2 v1, Vector2 v2)
     return((Vector2) { v1.x - v2.x, v1.y - v2.y });
 }
 
+void ServeBall(t_ball *ball)
+{
+    ball->pos.x = GetScreenWidth()/2.0f;
+    ball->pos.y = GetScreenHeight()/2.0f;
+    ball->velo.x = 7;
+    ball->velo.y = 7;
+}
+
 int main(void)
 {
     const int screenWidth = 1200;
     const int screenHeight = 800;
-
+  
+    int scoreL = 0;
+    int scoreR = 0;
+      
     //starting position ball: middle of the screen
-    t_ball ball = { { screenWidth/2, screenHeight/2 }, { 8, 8 }, 8};
+    t_ball ball = { { screenWidth/2, screenHeight/2 }, { 7, 7 }, 8};
     
     //initialize players
     float playerHeight = 150;
@@ -45,7 +56,7 @@ int main(void)
     {
         //add velocity to ball position
         ball.pos = my_add_vectors2(ball.pos, ball.velo);
-        
+
         //bounce off top and bottom of screen
         if (ball.pos.y > (screenHeight - 5))
         {
@@ -58,7 +69,7 @@ int main(void)
             ball.velo.y *= -1;
         }
         //for testing purposes
-        if (ball.pos.x < 5)
+        /*if (ball.pos.x < 5)
         {
             ball.pos.x = 5;
             ball.velo.x *= -1;
@@ -67,7 +78,7 @@ int main(void)
         {
             ball.pos.x = screenWidth - 5;
             ball.velo.x *= -1;
-        }
+        }*/
         
         //move players up(-) and down(+)
         if (IsKeyDown(KEY_F))
@@ -91,16 +102,18 @@ int main(void)
             if (ball.velo.x < 0)
             ball.velo.x *= -1.05;
         }
-        
-        /* if (ball->x >= SCREENWIDTH)
+
+        if (ball.pos.x >= screenWidth)
         {
-            point for playerL;
+            scoreL++;
+            ServeBall(&ball);
         }
-        else if (ball->x <= 0)
+        else if (ball.pos.x <= 0)
         {
-            point for playerR;
-        } */
-        
+            scoreR++;
+            ServeBall(&ball);
+        }
+
         BeginDrawing();
             ClearBackground(BLACK);
             
@@ -108,10 +121,12 @@ int main(void)
             DrawRectangle(playerL.pos.x, playerL.pos.y, playerWidth, playerHeight, WHITE);
             DrawRectangle(playerR.pos.x, playerR.pos.y, playerWidth, playerHeight, WHITE);
             
+            DrawText(TextFormat("Score: %d", scoreL), 150, 120, 20, GREEN);
+            DrawText(TextFormat("Score: %d", scoreR), 950, 120, 20, GREEN);
+
             DrawFPS(1100, 10);
         EndDrawing();
     }
-
     CloseWindow();
 
     return(0);
