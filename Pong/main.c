@@ -145,7 +145,7 @@ int main(void)
                 }
                 
                 if (IsKeyPressed(KEY_ENTER))
-                    currScreen = END;
+                    currScreen = TITLE;
             } break;
             case END:
             {
@@ -176,8 +176,17 @@ int main(void)
                     DrawRectangle(playerL.pos.x, playerL.pos.y, playerWidth, playerHeight, WHITE);
                     DrawRectangle(playerR.pos.x, playerR.pos.y, playerWidth, playerHeight, WHITE);
             
-                    DrawText(TextFormat("Score: %d", scoreL), 150, 120, 20, GREEN);
-                    DrawText(TextFormat("Score: %d", scoreR), 950, 120, 20, GREEN);
+                    if (!tutorial)
+                    {
+                        DrawText(TextFormat("Score: %d", scoreL), 150, 120, 25, GREEN);
+                        DrawText(TextFormat("Score: %d", scoreR), 900, 120, 25, GREEN);
+                    }
+                    else
+                    {
+                        DrawText(TextFormat("Move the left paddle with F, D"), 150, 100, 20, GREEN);
+                        DrawText(TextFormat("Move the right paddle with J, K"), 150, 150, 20, GREEN);
+                        DrawText(TextFormat("Press Enter to end the tutorial"), 150, 200, 20, GRAY);
+                    }
 
                     DrawFPS(1100, 10);
                 } break;
