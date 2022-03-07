@@ -12,6 +12,8 @@ typedef struct s_player{
     Vector2 velo;
 }t_player;
 
+typedef enum SwitchScreen { START = 0, TUTORIAL, GAMEPLAY, END } SwitchScreen;
+
 Vector2 my_add_vectors2(Vector2 v1, Vector2 v2)
 {
     return((Vector2) { v1.x + v2.x, v1.y + v2.y });
@@ -24,10 +26,8 @@ Vector2 my_sub_vectors2(Vector2 v1, Vector2 v2)
 
 void ServeBall(t_ball *ball)
 {
-    ball->pos.x = GetScreenWidth()/2.0f;
-    ball->pos.y = GetScreenHeight()/2.0f;
-    ball->velo.x = 7;
-    ball->velo.y = 7;
+    ball->pos = (Vector2) { GetScreenWidth()/2, GetScreenHeight()/2 };
+    ball->velo = (Vector2) { 7, 7 };     //make random values between (-)7 and (-)6
 }
 
 int main(void)
@@ -37,18 +37,25 @@ int main(void)
   
     int scoreL = 0;
     int scoreR = 0;
-      
-    //starting position ball: middle of the screen
-    t_ball ball = { { screenWidth/2, screenHeight/2 }, { 7, 7 }, 8};
     
-    //initialize players
-    float playerHeight = 150;
+    float playerHeight = 120;
     float playerWidth = 10;
     
-    t_player playerL = { { 50, (screenHeight/2 - playerHeight/2)}, { 0, 10 } };
-    t_player playerR = { { (screenWidth - 50 - playerWidth), (screenHeight/2 - playerHeight/2)}, { 0, 10 } };
-    
     InitWindow(screenWidth, screenHeight, "Ping Pong!");
+    
+    t_player playerL = { 0 };
+    playerL.pos = (Vector2) { 50, (screenHeight/2 - playerHeight/2)};
+    playerL.velo = (Vector2) { 0, 10 };
+    
+    t_player playerR = { 0 };
+    playerR.pos = (Vector2) { (screenWidth - 50 - playerWidth), (screenHeight/2 - playerHeight/2)};
+    playerR.velo = (Vector2) { 0, 10 };
+    
+    t_ball ball = { 0 };
+    ball.rad = 8;
+    
+    SwitchScreen currScreen = START;
+    
     SetTargetFPS(60);
       
     //main game loop
@@ -81,15 +88,22 @@ int main(void)
         }*/
         
         //move players up(-) and down(+)
-        if (IsKeyDown(KEY_F))
+        if (IsKeyDown(KEY_F) && (playerL.pos.y > 0))
+        {
             playerL.pos = my_sub_vectors2(playerL.pos, playerL.velo);
-        else if (IsKeyDown(KEY_D))
+        }
+        else if (IsKeyDown(KEY_D) && (playerL.pos.y < (screenHeight - playerHeight)))
+        {
             playerL.pos = my_add_vectors2(playerL.pos, playerL.velo);
-        if (IsKeyDown(KEY_J))
+        }
+        if (IsKeyDown(KEY_J) && (playerR.pos.y > 0))
+        {
             playerR.pos = my_sub_vectors2(playerR.pos, playerL.velo);
-        else if (IsKeyDown(KEY_K))
+        }
+        else if (IsKeyDown(KEY_K) && (playerR.pos.y < (screenHeight - playerHeight)))
+        {
             playerR.pos = my_add_vectors2(playerR.pos, playerR.velo);
-        //add: players can't move outside of screen
+        }
         
         //ball-player collision
         if (CheckCollisionCircleRec(ball.pos, ball.rad, (Rectangle) { playerR.pos.x, playerR.pos.y, playerWidth, playerHeight}))
