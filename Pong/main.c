@@ -136,15 +136,17 @@ int main(void)
                     }
                 }
 
-                if ((ball.pos.x >= screenWidth) && !tutorial && !winner)
+                if ((ball.pos.x >= screenWidth) && !winner)
                 {
-                    scoreL++;
+                    if (!tutorial)
+                        scoreL++;
                     if (scoreL < 8 && scoreR < 8)
                         ServeBall(&ball);
                 }
-                else if ((ball.pos.x < 0) && !tutorial && !winner)
+                else if ((ball.pos.x < 0) && !winner)
                 {
-                    scoreR++;
+                    if (!tutorial)
+                        scoreR++;
                     if (scoreL < 8 && scoreR < 8)
                         ServeBall(&ball);
                 }
