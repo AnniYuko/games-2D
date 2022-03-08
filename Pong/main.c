@@ -41,7 +41,10 @@ int main(void)
     float playerHeight = 120;
     float playerWidth = 10;
     
-    int tutorial = 0;
+    bool tutorial = false;
+    bool winner = false;
+    
+    int framesCounter = 0;
     
     InitWindow(screenWidth, screenHeight, "Another Pong");
     
@@ -54,6 +57,8 @@ int main(void)
     playerR.velo = (Vector2) { 0, 10 };
     
     t_ball ball = { 0 };
+    ball.pos = (Vector2) { GetScreenWidth()/2, GetScreenHeight()/2 };
+    ball.velo = (Vector2) { 7, 7 };
     ball.rad = 8;
     
     SwitchScreen currScreen = START;
@@ -131,26 +136,44 @@ int main(void)
                     }
                 }
 
-                if (ball.pos.x >= screenWidth)
+                if ((ball.pos.x >= screenWidth) && !tutorial && !winner)
                 {
-                    if (!tutorial)
-                        scoreL++;
-                    ServeBall(&ball);
+                    scoreL++;
+                    if (scoreL < 8 && scoreR < 8)
+                        ServeBall(&ball);
                 }
-                else if (ball.pos.x <= 0)
+                else if ((ball.pos.x < 0) && !tutorial && !winner)
                 {
-                    if (!tutorial)
-                        scoreR++;
-                    ServeBall(&ball);
+                    scoreR++;
+                    if (scoreL < 8 && scoreR < 8)
+                        ServeBall(&ball);
                 }
                 
-                if (IsKeyPressed(KEY_ENTER))
+                //winning condition
+                if (scoreL == 8 || scoreR == 8)
+                {
+                    winner = true;
+                    if (framesCounter++ > 180)
+                        currScreen = END;
+                }
+                                               
+                if (tutorial && IsKeyPressed(KEY_ENTER))
+                {
                     currScreen = TITLE;
+                    //deselect tutorial option
+                    tutorial = false;
+                }
             } break;
             case END:
             {
                 if (IsKeyPressed(KEY_ENTER))
+                {
                     currScreen = GAMEPLAY;
+                    winner = false;
+                    scoreL = 0;
+                    scoreR = 0;
+                    ServeBall(&ball);
+                }
             } break;
             default: break;
         }
@@ -178,8 +201,13 @@ int main(void)
             
                     if (!tutorial)
                     {
-                        DrawText(TextFormat("Score: %d", scoreL), 150, 120, 25, GREEN);
-                        DrawText(TextFormat("Score: %d", scoreR), 900, 120, 25, GREEN);
+                        DrawText(TextFormat("Score: %d", scoreL), 200, 120, 30, GREEN);
+                        DrawText(TextFormat("Score: %d", scoreR), 850, 120, 30, GREEN);
+                        
+                        if (winner && (scoreL > scoreR))
+                            DrawText(TextFormat("The left player has won!"), screenWidth/2 - 200, screenHeight/2, 30, YELLOW);
+                        else if (winner && (scoreL < scoreR))
+                            DrawText(TextFormat("The right player has won!"), screenWidth/2 - 200, screenHeight/2, 30, YELLOW);
                     }
                     else
                     {
