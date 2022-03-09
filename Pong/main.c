@@ -32,6 +32,12 @@ void ServeBall(t_ball *ball)
     ball->velo.y = (int)pow(-1, rand()) * (rand()%3 + 5.5f);
 }
 
+void DrawTextCentered(char *text, int posY, int fontSize, Color color)
+{
+    int textWidth = MeasureText(text, fontSize);
+    DrawText(text, GetScreenWidth()/2.0f - textWidth/2.0f, posY, fontSize, color);
+}
+
 int main(void)
 {
     const int screenWidth = 1200;
@@ -199,13 +205,13 @@ int main(void)
             {
                 case START:
                 {
-                    DrawText(TextFormat("Let's play Pong!"), screenWidth/2 - 150, screenHeight/2 - 100, 40, RAYWHITE);
-                    DrawText(TextFormat("Press Enter to continue"), screenWidth/2 - 150, screenHeight/2 + 200, 25, BLUE);
+                    DrawTextCentered(TextFormat("Let's play Pong!"), screenHeight/2 - 100, 40, RAYWHITE);
+                    DrawTextCentered(TextFormat("Press Enter to continue"), screenHeight/2 + 200, 25, BLUE);
                 } break;
                 case TITLE:
                 {
-                    DrawText(TextFormat("Press 'T' to try the tutorial first"), screenWidth/2 - 200, screenHeight/2, 25, tutorial ? GREEN : RAYWHITE);
-                    DrawText(TextFormat("Press Enter to continue"), screenWidth/2 - 150, screenHeight/2 + 200, 25, BLUE);
+                    DrawTextCentered(TextFormat("Press 'T' to try the tutorial first"), screenHeight/2, 25, tutorial ? GREEN : RAYWHITE);
+                    DrawTextCentered(TextFormat("Press Enter to continue"), screenHeight/2 + 200, 25, BLUE);
                 } break;
                 case GAMEPLAY:
                 {
@@ -225,23 +231,23 @@ int main(void)
                         DrawText(TextFormat("Score: %d", scoreR), 850, 120, 30, GREEN);
                         
                         if (winner && (scoreL > scoreR))
-                            DrawText(TextFormat("The left player has won!"), screenWidth/2 - 200, screenHeight/2, 30, YELLOW);
+                            DrawTextCentered(TextFormat("The left player has won!"), screenHeight/2, 30, YELLOW);
                         else if (winner && (scoreL < scoreR))
-                            DrawText(TextFormat("The right player has won!"), screenWidth/2 - 200, screenHeight/2, 30, YELLOW);
+                            DrawTextCentered(TextFormat("The right player has won!"), screenHeight/2, 30, YELLOW);
                     }
                     
                     if (paused)
                     {
                         DrawRectangle(300, screenHeight/2 - 300, 600, 500, RAYWHITE);
                         DrawRectangle(315, screenHeight/2 - 285, 570, 470, BLACK);
-                        DrawText(TextFormat("PAUSED"), screenWidth/2 - MeasureText(TextFormat("PAUSED"), 40)/2 , screenHeight/2 - 200, 40, RAYWHITE);
+                        DrawTextCentered(TextFormat("PAUSED"), screenHeight/2 - 200, 40, RAYWHITE);
                     }
 
                     DrawFPS(1100, 10);
                 } break;
                 case END:
                 {
-                    DrawText(TextFormat("Press Enter to play again"), screenWidth/2 - 150, screenHeight/2 + 200, 25, BLUE);
+                    DrawTextCentered(TextFormat("Press Enter to play again"), screenHeight/2 + 200, 25, BLUE);
                 } break;
                 default: break;
             }
