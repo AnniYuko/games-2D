@@ -13,7 +13,13 @@ typedef struct s_player{
     Vector2 velo;
 }t_player;
 
-typedef enum SwitchScreen { START = 0, TITLE, GAMEPLAY, END } SwitchScreen;
+typedef enum SwitchScreen {
+    START = 0,
+    INSTRUCTIONS,
+    MENU,
+    GAMEPLAY,
+    END
+} SwitchScreen;
 
 Vector2 my_add_vectors2(Vector2 v1, Vector2 v2)
 {
@@ -28,8 +34,8 @@ Vector2 my_sub_vectors2(Vector2 v1, Vector2 v2)
 void ServeBall(t_ball *ball)
 {
     ball->pos = (Vector2) { GetScreenWidth()/2, GetScreenHeight()/2 };
-    ball->velo.x = (int)pow(-1, rand()) /* -1 (left) or 1 (right)*/ * (rand()%3 + 5.5f); //value between 5.5 and 7.5
-    ball->velo.y = (int)pow(-1, rand()) * (rand()%3 + 5.5f);
+    ball->velo.x = (int)pow(-1, rand()) /* -1 (left) or 1 (right)*/ * GetRandomValue(6, 7);
+    ball->velo.y = (int)pow(-1, rand()) * GetRandomValue(6, 7);
 }
 
 void DrawTextCentered(char *text, int posY, int fontSize, Color color)
@@ -49,9 +55,12 @@ int main(void)
     float playerHeight = 120;
     float playerWidth = 10;
     
-    bool tutorial = false;
     bool winner = false;
     bool paused = false;
+    bool beginner = false;
+    bool intermediate = true;
+    bool hard = false;
+    bool extreme;
     
     int framesCounter = 0;
     
@@ -81,13 +90,16 @@ int main(void)
             case START:
             {
               if (IsKeyPressed(KEY_ENTER))
-                    currScreen = TITLE;
+                    currScreen = INSTRUCTIONS;
             } break;
-            case TITLE:
+            case INSTRUCTIONS:
             {
-                if (IsKeyPressed(KEY_T))
-                    tutorial = (!tutorial);
-                else if (IsKeyPressed(KEY_ENTER))
+                if (IsKeyPressed(KEY_ENTER))
+                    currScreen = MENU;
+            } break;
+            case MENU:
+            {
+                if (IsKeyPressed(KEY_ENTER))
                 {
                     currScreen = GAMEPLAY;
                     ServeBall(&ball);
@@ -114,21 +126,13 @@ int main(void)
                 
                     //move players up(-) and down(+)
                     if (IsKeyDown(KEY_F) && (playerL.pos.y > 0))
-                    {
                         playerL.pos = my_sub_vectors2(playerL.pos, playerL.velo);
-                    }
                     else if (IsKeyDown(KEY_D) && (playerL.pos.y < (screenHeight - playerHeight)))
-                    {
                         playerL.pos = my_add_vectors2(playerL.pos, playerL.velo);
-                    }
                     if (IsKeyDown(KEY_J) && (playerR.pos.y > 0))
-                    {
                         playerR.pos = my_sub_vectors2(playerR.pos, playerL.velo);
-                    }
                     else if (IsKeyDown(KEY_K) && (playerR.pos.y < (screenHeight - playerHeight)))
-                    {
                         playerR.pos = my_add_vectors2(playerR.pos, playerR.velo);
-                    }
             
                     //ball player collision & speed up game over time
                     if (CheckCollisionCircleRec(ball.pos, ball.rad, (Rectangle) { playerR.pos.x, playerR.pos.y, playerWidth, playerHeight}))
@@ -151,15 +155,13 @@ int main(void)
                     //scoring points
                     if ((ball.pos.x >= screenWidth) && !winner)
                     {
-                        if (!tutorial)
-                            scoreL++;
+                        scoreL++;
                         if (scoreL < 10 && scoreR < 10)
                             ServeBall(&ball);
                     }
                     else if ((ball.pos.x < 0) && !winner)
                     {
-                        if (!tutorial)
-                            scoreR++;
+                        scoreR++;
                         if (scoreL < 10 && scoreR < 10)
                             ServeBall(&ball);
                     }
@@ -176,13 +178,6 @@ int main(void)
                 //pause game
                 if (IsKeyPressed(KEY_SPACE))
                     paused = (!paused);
-
-                if (tutorial && IsKeyPressed(KEY_ENTER))
-                {
-                    currScreen = TITLE;
-                    //deselect tutorial option
-                    tutorial = false;
-                }
             } break;
             case END:
             {
@@ -205,13 +200,27 @@ int main(void)
             {
                 case START:
                 {
-                    DrawTextCentered(TextFormat("Let's play Pong!"), screenHeight/2 - 100, 40, RAYWHITE);
+                    DrawTextCentered(TextFormat("Let's play Pong!"), screenHeight/2 - 100, 50, RAYWHITE);
                     DrawTextCentered(TextFormat("Press Enter to continue"), screenHeight/2 + 200, 25, BLUE);
                 } break;
-                case TITLE:
+                case INSTRUCTIONS:
                 {
-                    DrawTextCentered(TextFormat("Press 'T' to try the tutorial first"), screenHeight/2, 25, tutorial ? GREEN : RAYWHITE);
-                    DrawTextCentered(TextFormat("Press Enter to continue"), screenHeight/2 + 200, 25, BLUE);
+                    DrawTextCentered(TextFormat("How to play"), 100, 40, WHITE);
+                    DrawTextCentered(TextFormat("Move the left paddle with F, D"), 200, 30, LIGHTGRAY);
+                    DrawTextCentered(TextFormat("Move the right paddle with J, K"), 250, 30, LIGHTGRAY);
+                    DrawTextCentered(TextFormat("Score 10 points to win the round"), 300, 30, LIGHTGRAY);
+                    DrawTextCentered(TextFormat("Press space to pause/resume the game"), 400, 30, LIGHTGRAY);
+                    DrawTextCentered(TextFormat("Press Enter to continue"), 600, 25, BLUE);
+                } break;
+                case MENU:
+                {
+                    DrawTextCentered(TextFormat("Menu"), 100, 40, WHITE);
+                    DrawTextCentered(TextFormat("DIFFICULTY LEVEL"), 200, 30, LIGHTGRAY);
+                    DrawTextCentered(TextFormat("Beginner"), 280, 30, beginner ? GREEN : LIGHTGRAY);
+                    DrawTextCentered(TextFormat("Intermediate"), 330, 30, intermediate ? GREEN : LIGHTGRAY);
+                    DrawTextCentered(TextFormat("Hard"), 380, 30, hard ? GREEN : LIGHTGRAY);
+                    DrawTextCentered(TextFormat("Extreme"), 430, 30, extreme ? GREEN : LIGHTGRAY);
+                    DrawTextCentered(TextFormat("Press Enter to start the game"), 600, 25, BLUE);
                 } break;
                 case GAMEPLAY:
                 {
@@ -219,30 +228,21 @@ int main(void)
                     DrawRectangle(playerL.pos.x, playerL.pos.y, playerWidth, playerHeight, WHITE);
                     DrawRectangle(playerR.pos.x, playerR.pos.y, playerWidth, playerHeight, WHITE);
             
-                    if (tutorial)
-                    {
-                        DrawText(TextFormat("Move the left paddle with F, D"), 150, 100, 20, GREEN);
-                        DrawText(TextFormat("Move the right paddle with J, K"), 150, 150, 20, GREEN);
-                        DrawText(TextFormat("Press Enter to end the tutorial"), 150, 200, 20, GRAY);
-                    }
-                    else
-                    {
-                        DrawText(TextFormat("Score: %d", scoreL), 200, 120, 30, GREEN);
-                        DrawText(TextFormat("Score: %d", scoreR), 850, 120, 30, GREEN);
+                    DrawText(TextFormat("%02d", scoreL), screenWidth/2 - 200 - MeasureText("00", 50), 50, 50, GREEN);
+                    DrawText(TextFormat("%02d", scoreR), screenWidth/2 + 200, 50, 50, GREEN);
+                    DrawTextCentered(TextFormat(":"), 50, 50, GREEN);
                         
-                        if (winner && (scoreL > scoreR))
-                            DrawTextCentered(TextFormat("The left player has won!"), screenHeight/2, 30, YELLOW);
-                        else if (winner && (scoreL < scoreR))
-                            DrawTextCentered(TextFormat("The right player has won!"), screenHeight/2, 30, YELLOW);
-                    }
+                    if (winner && (scoreL > scoreR))
+                        DrawTextCentered(TextFormat("The left player has won!"), screenHeight/2, 30, YELLOW);
+                    else if (winner && (scoreL < scoreR))
+                        DrawTextCentered(TextFormat("The right player has won!"), screenHeight/2, 30, YELLOW);
                     
                     if (paused)
                     {
-                        DrawRectangle(300, screenHeight/2 - 300, 600, 500, RAYWHITE);
-                        DrawRectangle(315, screenHeight/2 - 285, 570, 470, BLACK);
-                        DrawTextCentered(TextFormat("PAUSED"), screenHeight/2 - 200, 40, RAYWHITE);
+                        //draw a window with white border
+                        DrawRectangleLinesEx((Rectangle) {300, screenHeight/2 - 200, 600, 500}, 10.0f, RAYWHITE);
+                        DrawTextCentered(TextFormat("PAUSED"), screenHeight/2 - 150, 40, RAYWHITE);
                     }
-
                     DrawFPS(1100, 10);
                 } break;
                 case END:
